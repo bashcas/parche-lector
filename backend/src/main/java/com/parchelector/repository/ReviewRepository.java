@@ -30,6 +30,15 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     
     @Query("SELECT AVG(r.rating) FROM Review r WHERE r.user.id = :userId AND r.isDeleted = false")
     Double getAverageRatingByUserId(Long userId);
+
+    @Query("SELECT COUNT(r) FROM Review r WHERE r.user.id = :userId AND r.isDeleted = false AND r.rating >= :minRating AND r.rating < :maxRating")
+    int countByUserIdAndRatingRange(Long userId, Double minRating, Double maxRating);
+
+    @Query("SELECT COUNT(r) FROM Review r WHERE r.user.id = :userId AND r.isDeleted = false AND EXTRACT(YEAR FROM r.createdAt) = EXTRACT(YEAR FROM CURRENT_DATE) AND EXTRACT(MONTH FROM r.createdAt) = EXTRACT(MONTH FROM CURRENT_DATE)")
+    int countReviewsThisMonth(Long userId);
+
+    @Query("SELECT COUNT(r) FROM Review r WHERE r.user.id = :userId AND r.isDeleted = false AND EXTRACT(YEAR FROM r.createdAt) = EXTRACT(YEAR FROM CURRENT_DATE)")
+    int countReviewsThisYear(Long userId);
     
     @Query("SELECT COUNT(rl) FROM ReviewLike rl WHERE rl.review.id = :reviewId")
     int countLikesByReviewId(Long reviewId);

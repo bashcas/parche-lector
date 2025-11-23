@@ -1551,6 +1551,137 @@ curl -X GET http://localhost:8080/social/follow/user/2/status \
 curl -X GET http://localhost:8080/social/follow/author/5/status \
   -H "Authorization: Bearer <TOKEN>"
 
+# Ver feed de actividad
+curl -X GET "http://localhost:8080/social/feed?limit=20&offset=0" \
+  -H "Authorization: Bearer <TOKEN>"
+```
+
+### 10. Perfiles Públicos (Con Autenticación)
+
+```bash
+# Ver perfil público de un usuario
+curl -X GET http://localhost:8080/users/2 \
+  -H "Authorization: Bearer <TOKEN>"
+
+# Ver listas públicas de un usuario
+curl -X GET http://localhost:8080/users/2/lists \
+  -H "Authorization: Bearer <TOKEN>"
+
+# Ver reseñas de un usuario
+curl -X GET http://localhost:8080/users/2/reviews \
+  -H "Authorization: Bearer <TOKEN>"
+```
+
+### 11. Estadísticas de Lectura (Con Autenticación)
+
+```bash
+# Ver mis estadísticas de lectura
+curl -X GET http://localhost:8080/stats/me \
+  -H "Authorization: Bearer <TOKEN>"
+
+# Ver estadísticas de lectura de otro usuario
+curl -X GET http://localhost:8080/stats/users/2 \
+  -H "Authorization: Bearer <TOKEN>"
+```
+
+---
+
+## 📊 Estadísticas de Lectura
+
+### GET /stats/me
+Obtener estadísticas completas de lectura del usuario autenticado.
+
+**Headers:** `Authorization: Bearer <token>`
+
+**Response:**
+```json
+{
+  "status": "SUCCESS",
+  "message": "Reading statistics retrieved successfully",
+  "data": {
+    "readingCounts": {
+      "totalBooksRead": 45,
+      "totalBooksReading": 3,
+      "totalBooksToRead": 12,
+      "totalPagesRead": 15420,
+      "totalReviews": 38,
+      "totalLists": 5
+    },
+    "ratingStats": {
+      "averageRating": 4.2,
+      "totalRatings": 38,
+      "fiveStarBooks": 12,
+      "fourStarBooks": 18,
+      "threeStarBooks": 6,
+      "twoStarBooks": 2,
+      "oneStarBooks": 0
+    },
+    "topGenres": [
+      {
+        "genreName": "Ficción",
+        "bookCount": 18,
+        "percentage": 40.0
+      },
+      {
+        "genreName": "Ciencia ficción",
+        "bookCount": 10,
+        "percentage": 22.2
+      },
+      {
+        "genreName": "Fantasía",
+        "bookCount": 8,
+        "percentage": 17.8
+      }
+    ],
+    "readingTrends": {
+      "booksReadThisMonth": 3,
+      "booksReadThisYear": 25,
+      "reviewsThisMonth": 2,
+      "reviewsThisYear": 20
+    }
+  }
+}
+```
+
+**Notas:**
+- `readingCounts`: Contadores generales de actividad de lectura
+  - `totalBooksRead`: Libros con estado "READ"
+  - `totalBooksReading`: Libros con estado "READING"
+  - `totalBooksToRead`: Libros con estado "WANT_TO_READ"
+  - `totalPagesRead`: Suma de páginas de todos los libros leídos
+  - `totalReviews`: Total de reseñas escritas
+  - `totalLists`: Total de listas de lectura creadas
+- `ratingStats`: Estadísticas de calificaciones
+  - `averageRating`: Promedio de todas las calificaciones (0.0 si no hay reseñas)
+  - `totalRatings`: Total de libros calificados
+  - Distribución por estrellas (5★ a 1★)
+- `topGenres`: Top 10 géneros más leídos
+  - `genreName`: Nombre del género
+  - `bookCount`: Cantidad de libros leídos de ese género
+  - `percentage`: Porcentaje respecto al total de libros leídos
+  - Ordenados por cantidad (mayor a menor)
+- `readingTrends`: Tendencias temporales
+  - Contadores de libros y reseñas del mes y año actual
+
+---
+
+### GET /stats/users/{userId}
+Obtener estadísticas de lectura de cualquier usuario (público).
+
+**Headers:** `Authorization: Bearer <token>`
+
+**Response:**
+Mismo formato que `/stats/me`
+
+**Errores posibles:**
+- `User not found` - El usuario no existe
+
+---
+
+## 📝 Notas Adicionales
+curl -X GET http://localhost:8080/social/follow/author/5/status \
+  -H "Authorization: Bearer <TOKEN>"
+
 # Obtener feed de actividad de personas que sigues
 curl -X GET "http://localhost:8080/social/feed?limit=20&offset=0" \
   -H "Authorization: Bearer <TOKEN>"
@@ -1622,6 +1753,8 @@ curl -X GET http://localhost:8080/users/2/reviews \
   - `GET /users/{userId}` - Ver perfil público de un usuario
   - `GET /users/{userId}/lists` - Ver listas públicas de un usuario
   - `GET /users/{userId}/reviews` - Ver reseñas de un usuario
+  - `GET /stats/me` - Ver mis estadísticas de lectura
+  - `GET /stats/users/{userId}` - Ver estadísticas de lectura de un usuario
 - La documentación se genera automáticamente desde el código
 - Todos los endpoints están documentados en Swagger UI
 - El manejo de errores está centralizado y devuelve códigos HTTP apropiados

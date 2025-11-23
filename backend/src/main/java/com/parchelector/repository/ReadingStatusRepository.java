@@ -28,4 +28,13 @@ public interface ReadingStatusRepository extends JpaRepository<ReadingStatus, Lo
     
     @Query("SELECT COUNT(rs) FROM ReadingStatus rs WHERE rs.user.id = :userId AND rs.status = :status")
     int countByUserIdAndStatus(Long userId, ReadingStatus.ReadingStatusEnum status);
+
+    @Query("SELECT SUM(b.pageCount) FROM ReadingStatus rs JOIN rs.book b WHERE rs.user.id = :userId AND rs.status = 'READ' AND b.pageCount IS NOT NULL")
+    Long sumPagesReadByUserId(Long userId);
+
+    @Query("SELECT COUNT(rs) FROM ReadingStatus rs WHERE rs.user.id = :userId AND rs.status = 'READ' AND EXTRACT(YEAR FROM rs.finishedAt) = EXTRACT(YEAR FROM CURRENT_DATE) AND EXTRACT(MONTH FROM rs.finishedAt) = EXTRACT(MONTH FROM CURRENT_DATE)")
+    int countBooksReadThisMonth(Long userId);
+
+    @Query("SELECT COUNT(rs) FROM ReadingStatus rs WHERE rs.user.id = :userId AND rs.status = 'READ' AND EXTRACT(YEAR FROM rs.finishedAt) = EXTRACT(YEAR FROM CURRENT_DATE)")
+    int countBooksReadThisYear(Long userId);
 }
