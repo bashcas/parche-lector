@@ -1207,6 +1207,128 @@ Obtener feed de actividad reciente de las personas que sigues.
 
 ---
 
+### 👤 Users (`/users`)
+
+#### GET /users/{userId}
+Obtener el perfil público de un usuario.
+
+**Headers:** `Authorization: Bearer <token>`
+
+**Response:**
+```json
+{
+  "status": "SUCCESS",
+  "message": "User profile retrieved successfully",
+  "data": {
+    "userName": "carlos_reader",
+    "userAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=Carlos",
+    "bio": "Amante de la literatura clásica y contemporánea",
+    "followers": 128,
+    "following": 42,
+    "userBooks": [
+      {
+        "id": 1,
+        "title": "Cien años de soledad",
+        "author": "Gabriel García Márquez",
+        "rating": 4.9,
+        "cover": "https://...",
+        "status": "leido"
+      }
+    ]
+  }
+}
+```
+
+**Notas:**
+- Muestra información pública del usuario
+- Incluye estadísticas de seguidores
+- Muestra libros con su estado de lectura
+
+---
+
+#### GET /users/{userId}/lists
+Obtener las listas públicas de un usuario.
+
+**Headers:** `Authorization: Bearer <token>`
+
+**Response:**
+```json
+{
+  "status": "SUCCESS",
+  "message": "User lists retrieved successfully",
+  "data": [
+    {
+      "id": 1,
+      "name": "Clásicos latinoamericanos",
+      "description": "Mejores libros de literatura latinoamericana",
+      "visibility": "PUBLIC",
+      "userId": 2,
+      "username": "carlos_reader",
+      "createdAt": "2025-11-22 20:00:00",
+      "updatedAt": "2025-11-22 20:00:00",
+      "bookCount": 12,
+      "likeCount": 45,
+      "books": [
+        {
+          "bookId": 1,
+          "title": "Cien años de soledad",
+          "coverUrl": "https://...",
+          "authors": ["Gabriel García Márquez"],
+          "position": 1,
+          "note": "Mi favorito",
+          "addedAt": "2025-11-22 20:05:00"
+        }
+      ]
+    }
+  ]
+}
+```
+
+**Notas:**
+- Solo muestra listas públicas o listas visibles para seguidores (si sigues al usuario)
+- Las listas privadas no se muestran
+- Incluye todos los libros de cada lista
+
+---
+
+#### GET /users/{userId}/reviews
+Obtener las reseñas públicas de un usuario.
+
+**Headers:** `Authorization: Bearer <token>`
+
+**Response:**
+```json
+{
+  "status": "SUCCESS",
+  "message": "User reviews retrieved successfully",
+  "data": [
+    {
+      "id": 1,
+      "bookId": 1,
+      "bookTitle": "Cien años de soledad",
+      "bookCover": "https://...",
+      "userId": 2,
+      "username": "carlos_reader",
+      "userAvatar": "https://...",
+      "rating": 4.9,
+      "title": "Una obra maestra",
+      "body": "Increíble narrativa que te atrapa...",
+      "createdAt": "2025-11-22 22:00:00",
+      "updatedAt": "2025-11-22 22:00:00",
+      "likes": 23,
+      "comments": 5
+    }
+  ]
+}
+```
+
+**Notas:**
+- Muestra todas las reseñas no eliminadas del usuario
+- Ordenadas por fecha (más recientes primero)
+- Incluye contadores de likes y comentarios
+
+---
+
 ## 🔧 Códigos de Estado HTTP
 
 - `200 OK` - Solicitud exitosa
@@ -1434,6 +1556,22 @@ curl -X GET "http://localhost:8080/social/feed?limit=20&offset=0" \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
+### 10. Perfiles y Contenido Público de Usuarios (Con Autenticación)
+
+```bash
+# Ver perfil público de un usuario
+curl -X GET http://localhost:8080/users/2 \
+  -H "Authorization: Bearer <TOKEN>"
+
+# Ver listas públicas de un usuario
+curl -X GET http://localhost:8080/users/2/lists \
+  -H "Authorization: Bearer <TOKEN>"
+
+# Ver reseñas de un usuario
+curl -X GET http://localhost:8080/users/2/reviews \
+  -H "Authorization: Bearer <TOKEN>"
+```
+
 ---
 
 ## 📝 Notas Importantes
@@ -1481,6 +1619,9 @@ curl -X GET "http://localhost:8080/social/feed?limit=20&offset=0" \
   - `GET /social/follow/user/{userId}/status` - Verificar si sigues a un usuario
   - `GET /social/follow/author/{authorId}/status` - Verificar si sigues a un autor
   - `GET /social/feed` - Ver feed de actividad de usuarios que sigues
+  - `GET /users/{userId}` - Ver perfil público de un usuario
+  - `GET /users/{userId}/lists` - Ver listas públicas de un usuario
+  - `GET /users/{userId}/reviews` - Ver reseñas de un usuario
 - La documentación se genera automáticamente desde el código
 - Todos los endpoints están documentados en Swagger UI
 - El manejo de errores está centralizado y devuelve códigos HTTP apropiados

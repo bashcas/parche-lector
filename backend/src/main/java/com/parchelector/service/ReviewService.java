@@ -150,6 +150,21 @@ public class ReviewService {
     }
 
     /**
+     * Get all public reviews by a user.
+     */
+    public List<ReviewResponse> getUserReviews(Long userId) {
+        // Validate user exists
+        userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        List<Review> reviews = reviewRepository.findByUserIdOrderByCreatedAtDesc(userId);
+
+        return reviews.stream()
+                .map(this::mapToReviewResponse)
+                .collect(Collectors.toList());
+    }
+
+    /**
      * Map Review entity to ReviewResponse DTO.
      */
     private ReviewResponse mapToReviewResponse(Review review) {

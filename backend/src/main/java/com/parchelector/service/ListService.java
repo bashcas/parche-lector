@@ -30,6 +30,9 @@ public class ListService {
     private ListBookRepository listBookRepository;
 
     @Autowired
+    private FollowRepository followRepository;
+
+    @Autowired
     private ListLikeRepository listLikeRepository;
 
     @Autowired
@@ -163,6 +166,23 @@ public class ListService {
                 .orElseThrow(() -> new IllegalArgumentException("Book not found in this list"));
 
         listBookRepository.delete(listBook);
+    }
+
+    /**
+     * Get public lists for a user.
+     */
+    public List<ListResponse> getUserPublicLists(Long userId, Long currentUserId) {
+        // Check if current user follows the target user
+        boolean isFollower = false;
+        if (currentUserId != null) {
+            isFollower = followRepository.existsByFollowerIdAndFollowedId(currentUserId, userId);
+        }
+
+        List<LibraryList> lists = libraryListRepository.findPublicListsByUserId(userId, isFollower);
+        
+        return lists.stream()
+                .map(this::mapToListResponse)
+                .collect(Collectors.toList());
     }
 
     /**

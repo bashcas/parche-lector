@@ -22,4 +22,7 @@ public interface LibraryListRepository extends JpaRepository<LibraryList, Long> 
 
     @Query("SELECT l FROM LibraryList l WHERE l.user.id IN :userIds ORDER BY l.createdAt DESC")
     List<LibraryList> findByUserIdsOrderByCreatedAtDesc(List<Long> userIds);
+
+    @Query("SELECT l FROM LibraryList l WHERE l.user.id = :userId AND (l.visibility = 'PUBLIC' OR (l.visibility = 'FOLLOWERS_ONLY' AND :isFollower = true)) ORDER BY l.createdAt DESC")
+    List<LibraryList> findPublicListsByUserId(Long userId, boolean isFollower);
 }
