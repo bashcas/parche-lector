@@ -135,7 +135,7 @@ Obtener perfil del usuario autenticado.
 ---
 
 #### POST /auth/forgot-password
-Solicitar reseteo de contraseña (envía email con token).
+Solicitar reseteo de contraseña (envía email con token). **No requiere autenticación.**
 
 **Request Body:**
 ```json
@@ -154,14 +154,16 @@ Solicitar reseteo de contraseña (envía email con token).
 ```
 
 **Notas:**
+- ✅ **Endpoint público** - No requiere autenticación
 - Envía un email con un enlace que contiene el token
 - El token expira en 1 hora
 - Por seguridad, siempre responde con éxito (no revela si el email existe)
+- El enlace enviado es: `http://localhost:5173/reset-password?token=ABC123...`
 
 ---
 
 #### POST /auth/reset-password
-Confirmar reseteo de contraseña con token (desde el enlace del email).
+Confirmar reseteo de contraseña con token (desde el enlace del email). **No requiere autenticación.**
 
 **Request Body:**
 ```json
@@ -180,10 +182,16 @@ Confirmar reseteo de contraseña con token (desde el enlace del email).
 }
 ```
 
+**Notas:**
+- ✅ **Endpoint público** - No requiere autenticación
+- El token debe ser el que se recibió por email
+- El token expira en 1 hora desde que fue generado
+- El token solo se puede usar una vez
+
 **Errores posibles:**
 - Token inválido o expirado
 - Token ya utilizado
-- Contraseña no cumple requisitos mínimos
+- Contraseña no cumple requisitos mínimos (mínimo 6 caracteres)
 
 ---
 
@@ -298,15 +306,15 @@ curl -X POST http://localhost:8080/auth/login \
   -d '{"usernameOrEmail":"ana_lector","password":"password123"}'
 ```
 
-### 2. Reseteo de Contraseña
+### 2. Reseteo de Contraseña (Sin Autenticación)
 
 ```bash
-# Solicitar reseteo (se envía email)
+# Solicitar reseteo (se envía email) - Endpoint PÚBLICO
 curl -X POST http://localhost:8080/auth/forgot-password \
   -H "Content-Type: application/json" \
   -d '{"email":"ana@email.com"}'
 
-# Confirmar reseteo con token (desde el email)
+# Confirmar reseteo con token (desde el email) - Endpoint PÚBLICO
 curl -X POST http://localhost:8080/auth/reset-password \
   -H "Content-Type: application/json" \
   -d '{"token":"TOKEN_DEL_EMAIL","newPassword":"nuevaPassword123"}'
@@ -341,6 +349,16 @@ curl -X POST http://localhost:8080/books/reading-status \
 - **La contraseña por defecto en datos dummy es:** `password123` (encriptada con BCrypt)
 - **Estados de lectura en frontend:** `"leyendo"`, `"leido"`, `"por_leer"`
 - **Estados de lectura en backend:** `"READING"`, `"READ"`, `"WANT_TO_READ"`
+- **Endpoints públicos (sin autenticación):**
+  - `POST /auth/register`
+  - `POST /auth/login`
+  - `POST /auth/forgot-password`
+  - `POST /auth/reset-password`
+- **Endpoints protegidos (requieren JWT):**
+  - `GET /auth/me`
+  - `GET /books/trending`
+  - `GET /books/search`
+  - `POST /books/reading-status`
 - La documentación se genera automáticamente desde el código
 - Todos los endpoints están documentados en Swagger UI
 - El manejo de errores está centralizado y devuelve códigos HTTP apropiados
