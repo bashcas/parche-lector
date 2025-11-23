@@ -4,10 +4,10 @@ import { authUtils } from '../utils/auth'
 
 // Importa tus vistas/páginas
 import WelcomeView from '../views/WelcomeView.vue'
-import LoginView from '../login/views/LoginView.vue'
-import RegisterView from '../register/views/RegisterView.vue'
+import LoginView from '../features/auth/views/LoginView.vue'
+import RegisterView from '../features/auth/views/RegisterView.vue'
 import HomeView from '../views/HomeView.vue'
-import ProfileView from '../views/ProfileView.vue'
+import ProfileView from '../features/profile/views/ProfileView.vue'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -72,3 +72,4 @@ router.beforeEach((to, _from, next) => {
 })
 
 export default router
+

@@ -25,7 +25,12 @@ export const authUtils = {
     }
   },
 
+  clearToken(): void {
+    this.removeToken()
+  },
+
   isAuthenticated(): boolean {
     return !!this.getToken()
   },
 }
+

@@ -5,14 +5,14 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 /**
- * Mock Email Service for production/testing without real email.
- * Active in 'prod' profile where email configuration is not available.
+ * Mock Email Service for testing without real email.
+ * Active only in 'mock' profile.
  * Logs password reset information to console instead of sending emails.
  * 
  * @author Nicolas Arciniegas
  */
 @Service
-@Profile("prod")
+@Profile("mock")
 public class MockEmailService implements IEmailService {
 
     @Value("${app.frontend.url}")
