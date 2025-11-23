@@ -631,6 +631,185 @@ Remover un libro de favoritos.
 
 ---
 
+### ⭐ Reviews (`/reviews`)
+
+#### POST /reviews
+Crear una nueva reseña para un libro.
+
+**Headers:** `Authorization: Bearer <token>`
+
+**Request Body:**
+```json
+{
+  "bookId": 1,
+  "rating": 4.5,
+  "title": "Una obra maestra",
+  "body": "Increíble narrativa que te atrapa desde el inicio..."
+}
+```
+
+**Notas:**
+- `rating` es requerido y debe estar entre 1.0 y 5.0
+- `title` es opcional (máximo 140 caracteres)
+- `body` es opcional (máximo 5000 caracteres)
+- Solo se puede crear una reseña por usuario por libro
+
+**Response:**
+```json
+{
+  "status": "SUCCESS",
+  "message": "Review created successfully",
+  "data": {
+    "id": 1,
+    "bookId": 1,
+    "bookTitle": "Cien años de soledad",
+    "bookCover": "https://...",
+    "userId": 1,
+    "username": "ana_lector",
+    "userAvatar": "https://...",
+    "rating": 4.5,
+    "title": "Una obra maestra",
+    "body": "Increíble narrativa...",
+    "createdAt": "2025-11-22 22:00:00",
+    "updatedAt": "2025-11-22 22:00:00",
+    "likes": 0,
+    "comments": 0
+  }
+}
+```
+
+**Errores posibles:**
+- `You have already reviewed this book` - Ya existe una reseña del usuario para este libro
+- `Book not found` - El libro no existe
+
+---
+
+#### PUT /reviews/{id}
+Actualizar una reseña existente (solo el autor puede hacerlo).
+
+**Headers:** `Authorization: Bearer <token>`
+
+**Request Body:** (todos los campos son opcionales)
+```json
+{
+  "rating": 5.0,
+  "title": "Actualización: aún mejor en segunda lectura",
+  "body": "Después de releerlo, aprecio aún más..."
+}
+```
+
+**Response:**
+```json
+{
+  "status": "SUCCESS",
+  "message": "Review updated successfully",
+  "data": {
+    "id": 1,
+    "bookId": 1,
+    ...
+    "rating": 5.0,
+    "title": "Actualización: aún mejor en segunda lectura",
+    "updatedAt": "2025-11-23 10:00:00"
+  }
+}
+```
+
+---
+
+#### DELETE /reviews/{id}
+Eliminar una reseña (soft delete, solo el autor puede hacerlo).
+
+**Headers:** `Authorization: Bearer <token>`
+
+**Response:**
+```json
+{
+  "status": "SUCCESS",
+  "message": "Review deleted successfully",
+  "data": null
+}
+```
+
+---
+
+#### GET /reviews/book/{bookId}
+Obtener todas las reseñas de un libro con rating agregado.
+
+**Headers:** `Authorization: Bearer <token>`
+
+**Response:**
+```json
+{
+  "status": "SUCCESS",
+  "message": "Reviews retrieved successfully",
+  "data": {
+    "bookId": 1,
+    "bookTitle": "Cien años de soledad",
+    "averageRating": 4.7,
+    "totalReviews": 156,
+    "reviews": [
+      {
+        "id": 1,
+        "bookId": 1,
+        "bookTitle": "Cien años de soledad",
+        "bookCover": "https://...",
+        "userId": 1,
+        "username": "ana_lector",
+        "userAvatar": "https://...",
+        "rating": 5.0,
+        "title": "Una obra maestra",
+        "body": "Increíble narrativa...",
+        "createdAt": "2025-11-22 22:00:00",
+        "updatedAt": "2025-11-22 22:00:00",
+        "likes": 23,
+        "comments": 5
+      },
+      {
+        "id": 2,
+        "userId": 2,
+        "username": "carlos_reader",
+        "rating": 4.5,
+        ...
+      }
+    ]
+  }
+}
+```
+
+---
+
+#### GET /reviews/book/{bookId}/my-review
+Obtener la reseña del usuario actual para un libro específico.
+
+**Headers:** `Authorization: Bearer <token>`
+
+**Response:**
+```json
+{
+  "status": "SUCCESS",
+  "message": "Review retrieved successfully",
+  "data": {
+    "id": 1,
+    "bookId": 1,
+    "bookTitle": "Cien años de soledad",
+    "userId": 1,
+    "username": "ana_lector",
+    "rating": 4.5,
+    "title": "Una obra maestra",
+    "body": "Increíble narrativa...",
+    "createdAt": "2025-11-22 22:00:00",
+    "updatedAt": "2025-11-22 22:00:00",
+    "likes": 0,
+    "comments": 0
+  }
+}
+```
+
+**Errores posibles:**
+- `Review not found` - El usuario no ha reseñado este libro
+
+---
+
 ## 🔧 Códigos de Estado HTTP
 
 - `200 OK` - Solicitud exitosa

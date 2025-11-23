@@ -36,4 +36,10 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     
     @Query("SELECT COUNT(rc) FROM ReviewComment rc WHERE rc.review.id = :reviewId AND rc.isDeleted = false")
     int countCommentsByReviewId(Long reviewId);
+    
+    @Query("SELECT r FROM Review r JOIN FETCH r.user JOIN FETCH r.book WHERE r.book.id = :bookId AND r.isDeleted = false ORDER BY r.createdAt DESC")
+    List<Review> findByBookIdOrderByCreatedAtDesc(Long bookId);
+    
+    @Query("SELECT COUNT(r) FROM Review r WHERE r.book.id = :bookId AND r.isDeleted = false")
+    int countByBookId(Long bookId);
 }
