@@ -810,6 +810,169 @@ Obtener la reseña del usuario actual para un libro específico.
 
 ---
 
+### 👥 Social (`/social`)
+
+#### POST /social/follow/user
+Seguir a otro usuario.
+
+**Headers:** `Authorization: Bearer <token>`
+
+**Request Body:**
+```json
+{
+  "userId": 2
+}
+```
+
+**Response:**
+```json
+{
+  "status": "SUCCESS",
+  "message": "User followed successfully",
+  "data": {
+    "followerId": 1,
+    "followerUsername": "ana_lector",
+    "followedId": 2,
+    "followedUsername": "carlos_reader",
+    "createdAt": "2025-11-22 23:00:00"
+  }
+}
+```
+
+**Errores posibles:**
+- `You cannot follow yourself` - No puedes seguirte a ti mismo
+- `You are already following this user` - Ya sigues a este usuario
+- `User to follow not found` - El usuario no existe
+
+---
+
+#### DELETE /social/follow/user/{userId}
+Dejar de seguir a un usuario.
+
+**Headers:** `Authorization: Bearer <token>`
+
+**Response:**
+```json
+{
+  "status": "SUCCESS",
+  "message": "User unfollowed successfully",
+  "data": null
+}
+```
+
+**Errores posibles:**
+- `You are not following this user` - No sigues a este usuario
+
+---
+
+#### POST /social/follow/author
+Seguir a un autor.
+
+**Headers:** `Authorization: Bearer <token>`
+
+**Request Body:**
+```json
+{
+  "authorId": 5
+}
+```
+
+**Response:**
+```json
+{
+  "status": "SUCCESS",
+  "message": "Author followed successfully",
+  "data": null
+}
+```
+
+**Errores posibles:**
+- `You are already following this author` - Ya sigues a este autor
+- `Author not found` - El autor no existe
+
+---
+
+#### DELETE /social/follow/author/{authorId}
+Dejar de seguir a un autor.
+
+**Headers:** `Authorization: Bearer <token>`
+
+**Response:**
+```json
+{
+  "status": "SUCCESS",
+  "message": "Author unfollowed successfully",
+  "data": null
+}
+```
+
+**Errores posibles:**
+- `You are not following this author` - No sigues a este autor
+
+---
+
+#### GET /social/users/{userId}/stats
+Obtener estadísticas de seguidores de un usuario.
+
+**Headers:** `Authorization: Bearer <token>`
+
+**Response:**
+```json
+{
+  "status": "SUCCESS",
+  "message": "User follow statistics retrieved successfully",
+  "data": {
+    "userId": 2,
+    "username": "carlos_reader",
+    "followersCount": 45,
+    "followingCount": 23,
+    "isFollowing": true
+  }
+}
+```
+
+**Notas:**
+- `isFollowing` indica si el usuario actual sigue a este usuario
+- `isFollowing` será `null` si consultas tus propias estadísticas
+
+---
+
+#### GET /social/follow/user/{userId}/status
+Verificar si sigues a un usuario específico.
+
+**Headers:** `Authorization: Bearer <token>`
+
+**Response:**
+```json
+{
+  "status": "SUCCESS",
+  "message": "Follow status retrieved successfully",
+  "data": true
+}
+```
+
+**Valores posibles:** `true` (siguiendo) o `false` (no siguiendo)
+
+---
+
+#### GET /social/follow/author/{authorId}/status
+Verificar si sigues a un autor específico.
+
+**Headers:** `Authorization: Bearer <token>`
+
+**Response:**
+```json
+{
+  "status": "SUCCESS",
+  "message": "Follow status retrieved successfully",
+  "data": true
+}
+```
+
+**Valores posibles:** `true` (siguiendo) o `false` (no siguiendo)
+
+---
+
 ## 🔧 Códigos de Estado HTTP
 
 - `200 OK` - Solicitud exitosa
@@ -939,6 +1102,70 @@ curl -X DELETE http://localhost:8080/books/favorites/1 \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
+### 7. Gestión de Reseñas (Con Autenticación)
+
+```bash
+# Crear una reseña
+curl -X POST http://localhost:8080/reviews \
+  -H "Authorization: Bearer <TOKEN>" \
+  -H "Content-Type: application/json" \
+  -d '{"bookId":1,"rating":4.5,"title":"Excelente","body":"Me encantó este libro..."}'
+
+# Actualizar una reseña
+curl -X PUT http://localhost:8080/reviews/1 \
+  -H "Authorization: Bearer <TOKEN>" \
+  -H "Content-Type: application/json" \
+  -d '{"rating":5.0,"title":"Perfecto"}'
+
+# Eliminar una reseña
+curl -X DELETE http://localhost:8080/reviews/1 \
+  -H "Authorization: Bearer <TOKEN>"
+
+# Ver todas las reseñas de un libro
+curl -X GET http://localhost:8080/reviews/book/1 \
+  -H "Authorization: Bearer <TOKEN>"
+
+# Ver mi reseña de un libro
+curl -X GET http://localhost:8080/reviews/book/1/my-review \
+  -H "Authorization: Bearer <TOKEN>"
+```
+
+### 8. Funciones Sociales (Con Autenticación)
+
+```bash
+# Seguir a un usuario
+curl -X POST http://localhost:8080/social/follow/user \
+  -H "Authorization: Bearer <TOKEN>" \
+  -H "Content-Type: application/json" \
+  -d '{"userId":2}'
+
+# Dejar de seguir a un usuario
+curl -X DELETE http://localhost:8080/social/follow/user/2 \
+  -H "Authorization: Bearer <TOKEN>"
+
+# Seguir a un autor
+curl -X POST http://localhost:8080/social/follow/author \
+  -H "Authorization: Bearer <TOKEN>" \
+  -H "Content-Type: application/json" \
+  -d '{"authorId":5}'
+
+# Dejar de seguir a un autor
+curl -X DELETE http://localhost:8080/social/follow/author/5 \
+  -H "Authorization: Bearer <TOKEN>"
+
+# Ver estadísticas de seguidores de un usuario
+curl -X GET http://localhost:8080/social/users/2/stats \
+  -H "Authorization: Bearer <TOKEN>"
+
+# Verificar si sigues a un usuario
+curl -X GET http://localhost:8080/social/follow/user/2/status \
+  -H "Authorization: Bearer <TOKEN>"
+
+# Verificar si sigues a un autor
+curl -X GET http://localhost:8080/social/follow/author/5/status \
+  -H "Authorization: Bearer <TOKEN>"
+```
+
 ---
 
 ## 📝 Notas Importantes
@@ -967,6 +1194,18 @@ curl -X DELETE http://localhost:8080/books/favorites/1 \
   - `GET /books/favorites` - Ver libros favoritos
   - `POST /books/favorites` - Añadir libro a favoritos
   - `DELETE /books/favorites/{bookId}` - Remover libro de favoritos
+  - `POST /reviews` - Crear reseña
+  - `PUT /reviews/{id}` - Actualizar reseña
+  - `DELETE /reviews/{id}` - Eliminar reseña
+  - `GET /reviews/book/{bookId}` - Ver reseñas de un libro
+  - `GET /reviews/book/{bookId}/my-review` - Ver mi reseña de un libro
+  - `POST /social/follow/user` - Seguir usuario
+  - `DELETE /social/follow/user/{userId}` - Dejar de seguir usuario
+  - `POST /social/follow/author` - Seguir autor
+  - `DELETE /social/follow/author/{authorId}` - Dejar de seguir autor
+  - `GET /social/users/{userId}/stats` - Ver estadísticas de seguidores
+  - `GET /social/follow/user/{userId}/status` - Verificar si sigues a un usuario
+  - `GET /social/follow/author/{authorId}/status` - Verificar si sigues a un autor
 - La documentación se genera automáticamente desde el código
 - Todos los endpoints están documentados en Swagger UI
 - El manejo de errores está centralizado y devuelve códigos HTTP apropiados
