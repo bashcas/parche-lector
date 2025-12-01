@@ -1,8 +1,8 @@
 # ========================
 # Stage 1: Build the App
 # ========================
-# We use a Maven image with JDK 21 (Change to 17 if you use Java 17)
-FROM maven:3.9-eclipse-temurin-21-alpine AS build
+# We use a Maven image with JDK 17 (multi-arch support)
+FROM maven:3.9-eclipse-temurin-17 AS build
 
 WORKDIR /app
 
@@ -17,13 +17,13 @@ RUN mvn dependency:go-offline
 COPY src ./src
 
 # 4. Build the jar, skipping tests to speed up deployment
-RUN mvn clean package -DskipTests
+RUN mvn clean package -DskipTests -Dmaven.test.skip=true
 
 # ========================
 # Stage 2: Run the App
 # ========================
-# We use a smaller JRE image for the final container
-FROM eclipse-temurin:21-jre-alpine
+# We use a smaller JRE image for the final container (multi-arch support)
+FROM eclipse-temurin:17-jre
 
 WORKDIR /app
 
@@ -31,10 +31,10 @@ WORKDIR /app
 # We rename it to 'app.jar' so we don't have to care about version numbers
 COPY --from=build /app/target/*.jar app.jar
 
-# Expose the port Render uses (Documentation only, Spring listens to $PORT env var)
-EXPOSE 10000
+# Expose port 8080 for local dev, 10000 for Render
+EXPOSE 8080 10000
 
 # Run the application
-# -Xmx350m: Limits Java Heap to 350MB. 
-# Render Free Tier has 512MB total. This leaves room for the OS so you don't crash.
-ENTRYPOINT ["java", "-Xmx350m", "-jar", "app.jar"]
+# -Xmx350m: Limits Java Heap to 350MB for Render Free Tier
+# For docker-compose, memory is typically more available
+ENTRYPOINT ["java", "-Xmx512m", "-jar", "app.jar"]

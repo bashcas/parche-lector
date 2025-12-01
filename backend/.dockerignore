@@ -1,0 +1,29 @@
+# Build output
+target
+
+# IDE
+.vscode
+.idea
+*.iml
+*.swp
+*.swo
+
+# Maven wrapper (already in image)
+.mvn
+mvnw
+mvnw.cmd
+
+# Logs
+*.log
+
+# Environment files
+.env
+.env.*
+
+# Git
+.git
+.gitignore
+
+# Documentation
+*.md
+

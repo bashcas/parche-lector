@@ -1,0 +1,89 @@
+version: '3.8'
+
+services:
+  # ========================
+  # PostgreSQL Database
+  # ========================
+  db:
+    image: postgres:16-alpine
+    container_name: parche-lector-db
+    environment:
+      POSTGRES_DB: parche_lector
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-123}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      # Initialize database schema and test data
+      - ./backend/ESQUEMA_PARCHE_LECTOR_POSTGRES.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./backend/DATOS_PRUEBA.sql:/docker-entrypoint-initdb.d/02-datos.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d parche_lector"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - parche-network
+
+  # ========================
+  # Spring Boot Backend
+  # ========================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: parche-lector-backend
+    environment:
+      # Override datasource URL to point to container
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/parche_lector
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-123}
+      # Use dev profile
+      SPRING_PROFILES_ACTIVE: dev
+      # Server port
+      SERVER_PORT: 8080
+      # Allow frontend CORS
+      APP_FRONTEND_URL: http://localhost:3000
+      # JWT configuration
+      APP_JWT_SECRET: ${JWT_SECRET:-404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970337336763979244226452948404D635166546A576E5A7234753778214125442A}
+      APP_JWT_EXPIRATION_MS: 86400000
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8080/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+    networks:
+      - parche-network
+
+  # ========================
+  # Vue.js Frontend
+  # ========================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: http://localhost:8080
+    container_name: parche-lector-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - parche-network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  parche-network:
+    driver: bridge
+
